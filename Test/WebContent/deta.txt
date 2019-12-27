@@ -1,0 +1,322 @@
+day1:
+	
+	page request session application:
+	{
+		request:临时变量传递
+		session：登录信息；登录权限
+		application：服务器网站
+	}
+	
+
+	<%request.setCharacterEncoding("utf-8");%>
+	string name = request.getPar...();
+	byte[]name = name.getBytes("非UTF-8编码");
+	新构建一个UTF-8的格式；new String("字节数组","UTF-8");
+
+
+	request:
+	类型
+	请求参数
+	重置编码
+	获取客服端信息
+	获取请求转发器的执行转发
+	request.getResquestDispatcjer("url").foward(request,response);
+	
+	
+	response:
+	response.setHeader("refresh","5");刷新
+	response.setContentType("MIME/txt/html");
+	禁止缓存：（刷新验证码）
+	response.setHeader("Cache-Control","no-cache");
+	response.setHeader("Pragma","no-cache");
+	response.setHeader("Expires",0);
+	response.sendRedirct("url");
+	
+	
+		请求转发					重定向
+对象		request					response
+请求次数 一次响应一次				多次请求响应
+地址栏	地址栏不发生变化（和内容不一致）		地址栏发生变化（url与内容一至）
+参数		会携带resquest和response 	扔掉resquest请求信息
+		request始终有效			
+处理范围 只能转给服务器内部		任意地址
+		
+		
+session：连接服务器产生；消亡：长时间未发出新的请求，超过服务器默认时间；手动销毁；
+不是所有的jsp都有9个内置对象，exception只存在声明为处理页面才会有；
+
+输入对象：out request response
+通信对象：pageContext seesion Application
+Servlet对象： page config
+错误对象 ：exception
+		
+day2:
+什么是servlet？
+	1.是Java的类（*.java）
+	2.继承了httpservlet（继承了servlet api）
+	[了解]servlet的类的结构
+	3.特点：
+		1.Java有的特点，servlet也有；
+		2.功能强大：Java API；servlet API
+		3.性能高效：多线程（加锁（同步锁）防止数据冲突）
+有什么用？
+	1.控制（处理HTTP请求）
+	2.处理响应
+	3.目标是否允许被访问
+怎么用？
+	1.servlet生命周期（面试）
+	加载；初始化；激活；销毁；
+	2.servlet创建和配置；
+		service方法不需要复写
+		service本身不处理请求，会将请求交给doMethod方法
+		如果提交方式是get，则使用doget，如果是post，则使用dopost；
+		
+mvc（用户登陆检测，如果用户是****，密码是****则欢迎***登陆成功）
+v:视图
+	index.jsp输入用户名和密码页面action
+	show.jsp显示登陆成功（getAttribute（））<%=username%> out.print();
+	error.jsp登陆失败
+M:模型
+	值javaBean:user.java保存用户名和密码
+	工具类javaBean:loginservice.java判断是否能够登陆
+		public class boolean login(User user)
+c:控制loginservlet.java
+	1接受参数usernmae/password=request.getparameter("")
+	2调用m进行判断new
+	3将结果换回v层
+		请求转发/重定向
+		存储对象request.session.application
+		
+servlet开发步骤：
+	1.设置必要头信息（重置编码，禁止缓存）
+	2.接受视图层v发送过来的参数request.getparmeter()
+	3.进行必要的数据处理（强制类型转换，异常类try cath）
+	4.封装数据（调用模型层m的值Javabean对数据进行封装）user=new user（）
+	5.处理数据（调用模型层m的工具类JavaBean对数据进行处理）
+	6.定义变量接收处理结果（保存v视图层需要的数据信息）
+	7.根据结果进行转发（重定向货或请求转发）（都可以使用，建议使用重定向）
+	
+2Filter过滤器
+1.是什么
+	是Java类
+	实现了Filter接口
+2.有什么用		
+	1过滤器位于客户和目标资源之间
+	2可以用多个过滤器，多个过滤器会组成过滤链FlterChain
+	作用
+		1处理request信息（统一处理网站的编码）
+		2设置response信息（禁止缓存）
+		3决定目标资源是否被访问（权限控制）
+		
+			允许访问 chain.doFilter();
+			不允许；重定向
+		
+	配置：两种配置web,/
+	过滤器路径：
+		/*：过滤所有访问请求
+		*.jsp:过滤所有的JSP文件
+		/index.jsp:过滤指定文件
+		
+		/admin/*：过滤admin文件下所有文件
+
+-----注意：在过滤器中使用request或则是response需要进行强制类型转换-----
+HTTpServletRuest request2 = (ServletRquest)request;
+
+day3
+DAO data access objecte 数据访问对象
+设计原则：
+	依赖倒转（面向接口编程）不要依赖于底层实现，而要依赖于接口（多态）
+1.JDBC
+	1.是什么
+		一组类和接口（java.sql.*）
+		由Java提供
+	2.为什么要用
+		标准和规范
+		更灵活
+		
+	数据库驱动：本质上是jdbc接口的实现
+
+pareStatement:
+	1.使用？代替参数进行占位
+	2.使用set**方法为？赋值
+与statement的区别
+	1.在创建的时候需要将sql传递给创建的方法
+	2.在执行的时候不需要参数
+
+pareStatement优点
+	1.易读性
+	2.已维护性
+	3.性能高效
+	4.防止SQL注入式攻击（1‘or'1'='1）
+
+java反射机制
+ 
+程序设计思维
+	1.面向接口编程
+	2.设计原则；开闭原则（对修改进行封闭）
+	3.可重用（DBtil.java）将可能重复使用的方法封装
+	4.设计原则；接口隔离
+
+
+day4;
+登陆成功后能查询并显示所有汽车信息
+
+MVC分析
+视图层：
+	输入页面：表单action=url；超链接a href=url/selectAllcar
+	输出页面：showInfo.jsp
+		数据页面：控制层c（需求：c负责保存数据sesion“集合list”）ArryList<car>,表格显示
+模型层：
+	值javabean：{映射类}将数据表的所有字段映射为一个类
+				ORM	对象关系映射
+	工具类：service DAO
+控制层：SelectAllCar
+	查询所有汽车信息，保存数据session“list”
+
+
+EL表达式语言
+	为什么？：解决了变量的读取（直接使用标签）
+	怎么用？：${表达式}
+		用处：
+			1.算数运算/逻辑运算/关系
+			2.读取作用域中存储的值${sessionScope}简化${list}
+				如果没有限定作用域：request->session->application
+			3.读取集合或数组
+				${list[i]}
+			4.读取对象的属性
+				${car.id}
+			5.读取cookie的name和value（cookie： xyz<key,value> 读取：${xyz.key},${xyz.value}）
+			6.读取jsp中内置对象中的值
+			7.获取request请求参数值（重点）${param.name}	${paramValues.name[i]}
+			应用：x>y?res1:res2
+				 ${not empt x?res1:res2}
+JSTL
+1.是什么
+	jsp标准标签库
+2.有什么用
+	1.尽可能减少jsp页面编写java页面
+	2.提供了5个标签库，其中包含了核心库，格式库....
+3.怎么用
+	1.下载jstl的包，导入到项目中
+	2.需要在使用jsp页面申明使用jstl（导入jstl库）taglib指令
+	core
+	标签：
+		1.<c:out>输出
+		2.<c:set>设置值
+		3.<c:if test="条件">执行代码</c:if>
+		4.<c:forEach>循环
+		<c:forRach items="${list}" var="temp"
+		begin="" end="" step="" varStatus="x"
+		
+		x.index索引
+		
+
+作业2；
+	完成以下功能
+	用户模块：
+		1.登陆
+		2.注册
+		3.修改密码
+		4....找回密码
+	汽车模块：
+		1.显示汽车信息
+		2.增加新的汽车
+		3.删除汽车信息
+		4.修改汽车信息
+		5.指定ID查询汽车信息
+		6.汽车模糊查询
+		7.价格范围..
+	系统安全：
+		汽车模块的所有功能必须要用户登陆之后才能使用
+		
+		
+day4:
+分页显示：
+	1.逻辑分页（需要代码实现分页）
+		思路：
+			之前：list显示所有信息
+			public ArryList<E> pageInfo(ArryList<E> list,int,int){}
+	
+	2.物理分页（查询时已经分好）
+		思路：
+			由SQL查询语句实现(select * from .. limit begin,length)
+			select * from .. limit (n-1)*num,num
+
+	优缺点：
+		1.数据库连接次数（1,n）
+		2.逻辑分页不适用大量数据
+		3.逻辑分页不与数据库交互，可能造成数据不一致
+
+
+
+密码加密：
+1.是什么：
+	MD5：信息摘要第五版（散列函数：哈希函数）
+2.为什么：	
+	保证数据一致性
+	特点：容易计算，压缩性，抗修改性，强碰撞性
+3.实现MessageDigest类
+
+day5
+Ajax
+	异步JavaScript和xml向服务器异步请求
+	特点：不刷新页面，更新内容
+	步骤：
+		1.创建xmlhttprequest对象
+		2.创建请求xxx.open("url",get/post,true);
+		3.发送请求xx.send();
+		4.处理结果
+		
+基于jquery的ajax：
+	本质：被封装的JavaScript
+	
+	$.get(url,[data],[seccess(data)],[datatype]);通过get方式发起Ajax的异步请求
+	$.post()....
+	
+验证码：
+视图：
+	需要一个验证码框，显示一张验证码
+控制层：
+	注册：
+		接收用户输入的验证码
+		对比向模型层要正确的验证码
+	输出验证码:
+		向模型层要验证码图片
+
+
+模型层：
+	
+
+day6：
+url参数不同（防止调用缓存）表示新的请求
+
+cookie：
+1.是什么：
+	1.信息片段（存储信息）
+	2.由服务器产生，写入到客服端
+2.为什么需要cookie
+	区别：session
+		都可以存储信息，session将信息保存在服务器中，
+		cookie将信息保存在客服端上
+3.怎么用
+	request用于读取cookie
+	response用于写入cookie
+	
+	删除cookie 将该cookie的setMaxAge(0);
+4.应用
+	保存密码
+
+用户信息安全
+	1.存储数据库加密
+	2.传输过程加密
+		1.在传输过程进行加密
+		2.一次一密（加密过程中混入时间）
+			没次登录使用的密码都是不同的（用户永远使用的是明文）
+
+
+
+		
+		
+		
+		
+		
